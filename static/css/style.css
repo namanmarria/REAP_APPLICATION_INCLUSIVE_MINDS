@@ -1,0 +1,205 @@
+/* General Styles */
+body {
+    background-color: #173d62;
+    color: #ffffff;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #0f2a45 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #ffffff !important;
+}
+
+.nav-link {
+    color: #ffffff !important;
+}
+
+/* Hero Section */
+.hero-section {
+    background-color: #173d62;
+    padding: 40px 0;
+}
+
+.tagline {
+    color: #ffffff;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.golden-line {
+    color: #e69500;
+}
+
+/* Info Box Styles */
+.info-box {
+    background-color: #0f2a45;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.info-box i {
+    color: #e69500;
+    font-size: 24px;
+    margin-right: 10px;
+    float: left;
+}
+
+.section-title {
+    color: #ffffff;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+/* Button Styles */
+.apply-btn {
+    background-color: #e69500;
+    color: #ffffff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.apply-btn:hover {
+    background-color: #c47d00;
+    color: #ffffff;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+    background-color: #0f2a45;
+}
+
+.testimonial {
+    background-color: #173d62;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.testimonial-text {
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.testimonial-author {
+    color: #e69500;
+    font-weight: bold;
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #0f2a45;
+    color: #ffffff;
+}
+
+.social-icons a {
+    color: #ffffff;
+    margin: 0 10px;
+    font-size: 18px;
+}
+
+.social-icons a:hover {
+    color: #e69500;
+}
+
+/* Selection Process Timeline */
+.timeline-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #173d62;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    color: #fff;
+}
+
+.timeline-table th,
+.timeline-table td {
+    padding: 15px;
+    text-align: left;
+    border: 1px solid #2a5584;
+}
+
+.timeline-table th {
+    background-color: #0f2a45;
+    color: #ffffff;
+}
+
+.timeline-table tbody tr:hover {
+    background-color: #1f4b78;
+}
+
+/* Selection Stages */
+.selection-stage {
+    text-align: center;
+    padding: 20px;
+}
+
+.selection-stage h3 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.selection-stage p {
+    margin: 0;
+    color: #cccccc;
+}
+
+.icon {
+    font-size: 3rem;
+    color: #e69500;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .arrow {
+        display: none;
+    }
+    
+    .timeline-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .col-stage {
+        flex-basis: 50%;
+        max-width: 50%;
+    }
+}
+
+/* Login Page Styles */
+.social-login .btn {
+    background-color: #ffffff;
+    border: 1px solid #dddddd;
+    color: #333333;
+    transition: all 0.3s ease;
+}
+
+.social-login .btn:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.social-login .btn img {
+    vertical-align: middle;
+}
+
+.text-muted {
+    color: #6c757d !important;
+} 
