@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load dict_extras %}
+
+{% block title %}REAP Evaluation Form{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Form Header -->
+                    <div class="form-header mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <a href="{% url 'core:evaluation_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Evaluations
+                            </a>
+                            <h1 class="text-center mb-0" style="color: #1a73e8; font-size: 32px; font-weight: 400;">
+                                {{ cycle.name }}
+                            </h1>
+                            <div style="width: 100px;"></div> <!-- Spacer for alignment -->
+                        </div>
+                        <p class="text-center text-muted">
+                            {% if cycle.end_date < now %}
+                                This evaluation period has ended.
+                            {% else %}
+                                Please fill out this form to begin your evaluation process.
+                            {% endif %}
+                        </p>
+                        
+                        <!-- Deadline Countdown -->
+                        <div class="deadline-countdown text-center mb-4">
+                            {% if days_remaining > 0 %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-clock"></i> Time Remaining: {{ days_remaining }} days
+                                    <br>
+                                    <small>Deadline: {{ end_date_display }}</small>
+                                </div>
+                            {% elif hours_remaining > 0 %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-clock"></i> Time Remaining: {{ hours_remaining }} hours
+                                    <br>
+                                    <small>Deadline: {{ end_date_display }}</small>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-clock"></i> Deadline has passed
+                                    <br>
+                                    <small>Deadline was: {{ end_date_display }}</small>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Form Content -->
+                    <form method="post" class="evaluation-form">
+                        {% csrf_token %}
+                        
+                        <!-- Form Sections -->
+                        <div class="form-section mb-4">
+                            <div class="section-header mb-3">
+                                <h2 style="color: #202124; font-size: 20px; font-weight: 500;">
+                                    Personal Information
+                                </h2>
+                            </div>
+                            
+                            <!-- Form Fields -->
+                            <div class="form-group mb-4">
+                                <label for="name" class="form-label" style="color: #202124; font-size: 14px;">
+                                    Full Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       style="border: 1px solid #dadce0; border-radius: 4px; padding: 13px 15px;"
+                                       value="{{ user.get_full_name }}" readonly>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="email" class="form-label" style="color: #202124; font-size: 14px;">
+                                    Email Address <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       style="border: 1px solid #dadce0; border-radius: 4px; padding: 13px 15px;"
+                                       value="{{ user.email }}" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Questions -->
+                        {% for q in questions %}
+                        <div class="form-group mb-4">
+                            <label class="form-label" style="color: #202124; font-size: 15px;">
+                                {{ q.sequence }}. {{ q.question_text }}
+                                {% if q.is_mandatory %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {% if q.question_type == 'subjective' %}
+                                <textarea class="form-control" name="answer_{{ q.id }}" rows="3" 
+                                          placeholder="Your answer..." 
+                                          required={% if q.is_mandatory %}true{% else %}false{% endif %}
+                                          {% if is_submitted or cycle.end_date < now %} disabled{% endif %}>{{ user_answers|get_item:q.id }}</textarea>
+                            {% elif q.question_type == 'rating' %}
+                                <div class="d-flex align-items-center gap-2 rating-group" data-qid="{{ q.id }}">
+                                    {% for i in "12345" %}
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input rating-radio" type="radio" 
+                                                   name="answer_{{ q.id }}" 
+                                                   id="rating_{{ q.id }}_{{ forloop.counter }}" 
+                                                   value="{{ forloop.counter }}" 
+                                                   required={% if q.is_mandatory %}true{% else %}false{% endif %}
+                                                   {% if is_submitted or cycle.end_date < now %} disabled{% endif %}
+                                                   {% if user_answers|get_item:q.id == forloop.counter|stringformat:'s' %}checked{% endif %}>
+                                            <label class="form-check-label" for="rating_{{ q.id }}_{{ forloop.counter }}">{{ forloop.counter }}</label>
+                                        </div>
+                                    {% endfor %}
+                                    <span class="selected-rating-value ms-2 fw-bold text-primary" id="selected-rating-{{ q.id }}"></span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions d-flex justify-content-end gap-2 mt-4">
+                            {% if not is_submitted and cycle.end_date >= now %}
+                                <button type="submit" name="action" value="clear" 
+                                        class="btn btn-outline-danger px-4 py-2 action-btn"
+                                        style="border: 1px solid #dc3545; color: #dc3545; border-radius: 4px; font-size: 14px;"
+                                        onclick="return confirm('Are you sure you want to clear all answers? It will delete from the database as well.');">
+                                    Clear
+                                </button>
+                                <button type="submit" name="action" value="save" 
+                                        class="btn btn-outline-primary px-4 py-2 action-btn"
+                                        style="border: 1px solid #1a73e8; color: #1a73e8; border-radius: 4px; font-size: 14px;">
+                                    Save
+                                </button>
+                                <button type="submit" name="action" value="submit" 
+                                        class="btn btn-primary px-4 py-2 action-btn"
+                                        style="background-color: #1a73e8; border: none; border-radius: 4px; font-size: 14px;"
+                                        onclick="return confirm('Are you sure you want to submit? You will not be able to edit after submission.');">
+                                    Submit
+                                </button>
+                            {% else %}
+                                <div class="alert alert-info w-100">
+                                    <i class="fas fa-info-circle"></i> 
+                                    {% if is_submitted %}
+                                        This form has been submitted and cannot be edited.
+                                    {% else %}
+                                        This evaluation period has ended and cannot be edited.
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 8px;
+    }
+    
+    .form-control:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+    
+    .form-control:read-only {
+        background-color: #f8f9fa;
+    }
+    
+    .btn-primary:hover {
+        background-color: #1557b0 !important;
+    }
+
+    .action-btn {
+        min-width: 100px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #1a73e8 !important;
+        color: white !important;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    /* Custom style for rating radio buttons */
+    .rating-group .form-check-input[type="radio"] {
+        border: 2.5px solid #1a73e8;
+        width: 22px;
+        height: 22px;
+        box-shadow: 0 0 0 2px #e3eafc;
+        margin-right: 4px;
+    }
+    .rating-group .form-check-input[type="radio"]:checked {
+        background-color: #1a73e8;
+        border-color: #1557b0;
+    }
+
+    /* Deadline countdown styles */
+    .deadline-countdown .alert {
+        border-radius: 8px;
+        padding: 12px 20px;
+        margin-bottom: 0;
+    }
+
+    .deadline-countdown .alert i {
+        margin-right: 8px;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.rating-group').forEach(function(group) {
+        const qid = group.getAttribute('data-qid');
+        const radios = group.querySelectorAll('.rating-radio');
+        const display = document.getElementById('selected-rating-' + qid);
+        radios.forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                display.textContent = radio.value;
+            });
+            if (radio.checked) {
+                display.textContent = radio.value;
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 
