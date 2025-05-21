@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}REAP - Home{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- User Profile Card -->
+        <div class="col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar-circle mb-3">
+                            <span class="initials">{{ user.get_full_name|first }}</span>
+                        </div>
+                        <h4 class="card-title mb-1">{{ user.get_full_name }}</h4>
+                        <p class="text-muted mb-0">{{ user.email }}</p>
+                    </div>
+                    <div class="user-stats">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h5 class="mb-1">{{ active_evaluations_count }}</h5>
+                                <p class="text-muted mb-0">Active</p>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-1">{{ completed_evaluations_count }}</h5>
+                                <p class="text-muted mb-0">Completed</p>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-1">{{ total_evaluations_count }}</h5>
+                                <p class="text-muted mb-0">Total</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluations Section -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-tasks me-2"></i>
+                        Evaluations
+                    </h5>
+                    <a href="{% url 'core:evaluation_list' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-list me-2"></i>
+                        View All Evaluations
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if active_evaluations %}
+                        <div class="row">
+                            {% for evaluation in active_evaluations %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ evaluation.name }}</h5>
+                                            <p class="card-text text-muted">
+                                                <i class="fas fa-clock me-2"></i>
+                                                Ends: {{ evaluation.end_date|date:"M d, Y" }}
+                                            </p>
+                                            <div class="d-grid">
+                                                <a href="{% url 'core:evaluation_form' evaluation.id %}" class="btn btn-primary">
+                                                    <i class="fas fa-edit me-2"></i>
+                                                    {% if evaluation.is_submitted %}
+                                                        View Submission
+                                                    {% else %}
+                                                        Continue Evaluation
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Active Evaluations</h5>
+                            <p class="text-muted">You don't have any active evaluations at the moment.</p>
+                            <a href="{% url 'core:evaluation_list' %}" class="btn btn-primary mt-3">
+                                <i class="fas fa-list me-2"></i>
+                                View All Evaluations
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+        background-color: #007bff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+
+    .initials {
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .user-stats {
+        border-top: 1px solid #e9ecef;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+
+    .user-stats h5 {
+        color: #007bff;
+        font-weight: 600;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
+    .btn-light {
+        background-color: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+    }
+
+    .btn-light:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+</style>
+{% endblock %} 
